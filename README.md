@@ -77,9 +77,21 @@ web - це назва сервісу django-додатку з [docker-compose.ym
 
 
 ### 6. Запустимо робочий проект
-`docker-compose up -d`
+```sh
+docker-compose up -d
+
+...
+[+] Running 3/3
+ ✔ Container postgres_db  Running     0.0s 
+ ✔ Container nginx        Started     2.6s 
+ ✔ Container django_app   Started     1.9s 
+
+```
 
 docker-compose up -d --build
+
+
+
 
 ### 7. Підготовка додатку до роботи
 ```sh

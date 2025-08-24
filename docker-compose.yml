@@ -3,7 +3,7 @@ services:
     build:
       context: ./django
     image: django-app
-    container_name: django_app
+    container_name: web
     volumes:
       - ./django:/app
     env_file:
