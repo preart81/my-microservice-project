@@ -28,7 +28,7 @@ spec:
     }
   }
   environment {
-    ECR_REGISTRY = '804054839611.dkr.ecr.eu-central-1.amazonaws.com'
+    ECR_REGISTRY = '804054839611.dkr.ecr.us-east-1.amazonaws.com'
     IMAGE_NAME   = 'ecr-repo-18062025214500'
     IMAGE_TAG    = "v1.0.${BUILD_NUMBER}"
     COMMIT_EMAIL = 'jenkins@localhost'
