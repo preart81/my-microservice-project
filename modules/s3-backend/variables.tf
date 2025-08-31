@@ -1,9 +1,15 @@
 variable "bucket_name" {
-  description = "Назва бакета для стейтів"
+  description = "Name of the S3 bucket to store Terraform state"
   type        = string
 }
 
-variable "table_name" {
-  description = "Назва таблиці для блокування стейтів"
+variable "dynamodb_table" {
+  description = "Name of lock table"
   type        = string
+}
+
+variable "env_name" {
+  description = "Default env name"
+  type        = string
+  default     = "lesson-5"
 }

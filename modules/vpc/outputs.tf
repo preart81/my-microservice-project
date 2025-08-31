@@ -12,3 +12,4 @@ output "private_subnets" {
   description = "Список ID приватних підмереж"
   value       = aws_subnet.private[*].id
 }
+

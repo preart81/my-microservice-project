@@ -66,13 +66,32 @@ terraform destroy
 
 Для додаткової інформації див. коментарі всередині модулів.
 
+## Налаштування доступів
+
+Критичні дані заповнюємо в [terraform.tfvars](terraform.tfvars) і додаємо файл в [.gitignore](.gitignore)
+
+```tfvars
+# terraform.tfvars
+
+# ---------------- github ----------------
+
+# облікові дані для доступу до приватного репозиторію
+github_user = "YOUR_USERNAME"
+
+# токен доступу
+github_pat = "ghp_token"
+
+# повна URL-адреса Git-репозиторію https://github.com/YOUR_USERNAME/example-repo.git
+github_repo_url = "https://github.com/YOUR_USERNAME/example-repo.git"
+```
+
 ## Перший запуск
 
 Перед першим запуском може виникнути помилка збереження стейта, оскільки ще не створено DynamoDB та bucket. Для уникнення помилки потрібно виконати перший запуск наступним чином:
 
 1. S3-бакет з іменем, налаштованим у параметрі `bucket_name` [main.tf](main.tf) повинен бути створений
-([Terraform / Configuration Language / Backend block / 
-s3](https://developer.hashicorp.com/terraform/language/backend/s3))
+   ([Terraform / Configuration Language / Backend block /
+   s3](https://developer.hashicorp.com/terraform/language/backend/s3))
 2. Закоментуємо конфігурацію бекенда "s3" у файлі [backend.tf](backend.tf).
    Це змусить Terraform тимчасово використовувати локальний файл стану.
 3. Потім запускаємо `terraform init` і `terraform apply`, щоб створити S3 bucket і таблицю DynamoDB в AWS.
