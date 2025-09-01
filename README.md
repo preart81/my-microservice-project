@@ -68,9 +68,9 @@ terraform destroy
 
 ## Налаштування доступів
 
-Критичні дані заповнюємо в [terraform.tfvars](terraform.tfvars) і додаємо файл в [.gitignore](.gitignore)
+Для зручності заповнимо дані заповнюємо в [terraform.tfvars](terraform.tfvars) згідно шаблону:
 
-```tfvars
+```ini
 # terraform.tfvars
 
 # ---------------- github ----------------
@@ -84,6 +84,7 @@ github_pat = "ghp_token"
 # повна URL-адреса Git-репозиторію https://github.com/YOUR_USERNAME/example-repo.git
 github_repo_url = "https://github.com/YOUR_USERNAME/example-repo.git"
 ```
+Файл додано в [.gitignore](.gitignore), тому він не включається в репозиторій.
 
 ## Перший запуск
 
