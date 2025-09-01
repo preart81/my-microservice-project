@@ -13,3 +13,15 @@ variable "chart_version" {
   type        = string
   default     = "5.46.4"
 }
+variable "github_repo_url" {
+  description = "GitHub repository URL for ArgoCD applications"
+  type        = string
+}
+variable "github_user" {
+  description = "GitHub user for ArgoCD applications"
+  type        = string
+}
+variable "github_pat" {
+  description = "GitHub personal access token for ArgoCD applications"
+  type        = string
+}

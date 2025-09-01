@@ -5,7 +5,12 @@ resource "helm_release" "argo_cd" {
   chart      = "argo-cd"
   version    = var.chart_version
   values = [
-    file("${path.module}/values.yaml")
+    # file("${path.module}/values.yaml")
+    templatefile("${path.module}/values.yaml", {
+      github_repo_url = var.github_repo_url
+      github_user     = var.github_user
+      github_pat      = var.github_pat
+    })
   ]
   create_namespace = true
 }
@@ -15,7 +20,12 @@ resource "helm_release" "argo_apps" {
   namespace        = var.namespace
   create_namespace = false
   values = [
-    file("${path.module}/values.yaml")
+    # file("${path.module}/values.yaml")
+    templatefile("${path.module}/values.yaml", {
+      github_repo_url = var.github_repo_url
+      github_user     = var.github_user
+      github_pat      = var.github_pat
+    })
   ]
   depends_on = [helm_release.argo_cd]
 }
