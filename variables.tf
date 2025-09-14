@@ -36,3 +36,8 @@ variable "github_repo_url" {
   description = "GitHub repository name"
   type        = string
 }
+variable "github_branch" {
+  description = "GitHub branch name"
+  type        = string
+  default     = "lesson-8-9"
+}

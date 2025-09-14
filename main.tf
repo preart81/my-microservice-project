@@ -79,6 +79,7 @@ module "jenkins" {
   github_pat        = var.github_pat
   github_user       = var.github_user
   github_repo_url   = var.github_repo_url
+  github_branch     = var.github_branch
   depends_on        = [module.eks]
   providers = {
     helm       = helm
@@ -87,11 +88,11 @@ module "jenkins" {
 }
 
 module "argo_cd" {
-  source        = "./modules/argo_cd"
-  namespace     = "argocd"
-  chart_version = "5.46.4"
+  source          = "./modules/argo_cd"
+  namespace       = "argocd"
+  chart_version   = "5.46.4"
   github_repo_url = var.github_repo_url
-  github_pat    = var.github_pat
-  github_user   = var.github_user
-  depends_on    = [module.eks]
+  github_pat      = var.github_pat
+  github_user     = var.github_user
+  depends_on      = [module.eks]
 }
