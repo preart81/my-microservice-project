@@ -28,13 +28,15 @@ spec:
     }
   }
   environment {
-    ECR_REGISTRY = '804054839611.dkr.ecr.us-east-1.amazonaws.com'
-    IMAGE_NAME   = 'ecr-repo-18062025214500'
+    // ECR_REGISTRY = '804054839611.dkr.ecr.us-east-1.amazonaws.com'
+    // IMAGE_NAME   = 'ecr-repo-18062025214500'
+    ECR_REGISTRY = "${output.ecr_repository_url}" // output з outputs.tf
+    IMAGE_NAME   = "${variable.repository_name}"  // variable з variables.tf
     IMAGE_TAG    = "v1.0.${BUILD_NUMBER}"
     COMMIT_EMAIL = 'jenkins@localhost'
     COMMIT_NAME  = 'jenkins'
-    GIT_REPO     = 'my-microservice-project.git' // Репозиторій з кодом застосунку
-    GIT_BRANCH   = 'lesson-7' // Гілка з кодом застосунку, де буде оновлюватись значення tag у values.yaml
+    GIT_REPO     = 'my-microservice-project.git'
+    GIT_BRANCH   = 'lesson-7'
   }
   stages {
     stage('Build & Push Docker Image') {
@@ -55,7 +57,7 @@ spec:
     stage('Update Chart Tag in Git') {
       steps {
         container('git') {
-          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: ${github_user}, passwordVariable: ${github_pat})]) {
+          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: ${ github_user }, passwordVariable: ${ github_pat })]) {
             sh '''
               git clone https://${github_user}:${github_pat}@github.com/${github_user}/${GIT_REPO}
               git checkout ${GIT_BRANCH} || git checkout -b ${GIT_BRANCH}
@@ -67,9 +69,9 @@ spec:
               git commit -m "Update image tag to $IMAGE_TAG"
               git push origin ${GIT_BRANCH}
             '''
-          }
         }
       }
     }
   }
+}
 }
