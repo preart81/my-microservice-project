@@ -1,3 +1,9 @@
+# GitHub credentials
+github_user: ""
+github_pat: ""
+github_repo_url: ""
+github_branch: ""
+
 controller:
   admin:
     username: admin
@@ -41,8 +47,8 @@ controller:
                   - usernamePassword:
                       scope: GLOBAL
                       id: github-token
-                      username: ${github_user}
-                      password: ${github_pat}
+                      username: "{{ .Values.github_user }}"
+                      password: "{{ .Values.github_pat }}"
                       description: GitHub PAT
       seed-job: |
         jobs:
@@ -52,10 +58,10 @@ controller:
                 scm {
                   git {
                     remote {
-                      url('${github_repo_url}')
+                      url('{{ .Values.github_repo_url }}')
                       credentials('github-token')
                     }
-                    branches('*/lesson-7')
+                    branches('*/{{ .Values.github_branch }}')
                   }
                 }
                 steps {
@@ -67,10 +73,10 @@ controller:
                             scm {
                               git {
                                 remote {
-                                  url("${github_repo_url}")
+                                  url("{{ .Values.github_repo_url }}")
                                   credentials("github-token")
                                 }
-                                branches("*/lesson-7")
+                                branches("*/{{ .Values.github_branch }}")
                               }
                             }
                           }

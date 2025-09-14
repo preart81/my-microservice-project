@@ -1,6 +1,6 @@
 resource "kubernetes_storage_class_v1" "ebs_sc" {
   metadata {
-    name        = "ebs-sc"
+    name = "ebs-sc"
     annotations = {
       "storageclass.kubernetes.io/is-default-class" = "true"
     }
@@ -19,8 +19,8 @@ resource "kubernetes_namespace" "jenkins" {
 }
 resource "kubernetes_service_account" "jenkins_sa" {
   metadata {
-    name        = "jenkins-sa"
-    namespace   = "jenkins"
+    name      = "jenkins-sa"
+    namespace = "jenkins"
     annotations = {
       "eks.amazonaws.com/role-arn" = aws_iam_role.jenkins_kaniko_role.arn
     }
@@ -30,14 +30,14 @@ resource "kubernetes_service_account" "jenkins_sa" {
 resource "aws_iam_role" "jenkins_kaniko_role" {
   name = "${var.cluster_name}-jenkins-kaniko-role"
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Federated = var.oidc_provider_arn
         },
-        Action    = "sts:AssumeRoleWithWebIdentity",
+        Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
             "${replace(var.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:jenkins:jenkins-sa"
@@ -51,7 +51,7 @@ resource "aws_iam_role_policy" "jenkins_ecr_policy" {
   name = "${var.cluster_name}-jenkins-kaniko-ecr-policy"
   role = aws_iam_role.jenkins_kaniko_role.id
   policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       {
         Effect = "Allow",
@@ -76,7 +76,14 @@ resource "helm_release" "jenkins" {
   chart            = "jenkins"
   version          = "5.8.27"
   create_namespace = false
+
   values = [
-    file("${path.module}/values.yaml")
+    # file("${path.module}/values.yaml")
+    templatefile("${path.module}/values.yaml", {
+      github_user     = var.github_user
+      github_pat      = var.github_pat
+      github_repo_url = var.github_repo_url
+      github_branch   = var.github_branch
+    })
   ]
 }
