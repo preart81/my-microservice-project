@@ -19,9 +19,9 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 variable "repository_name" {
-  description = "Name of the ECR repository"
+  description = "Name of the ECR repository (унікальна в акаунті та регіоні)."
   type        = string
-  default     = "ecr-repo-18062025214500"
+  default     = "ecr-repo-preart-18062025214500"
 }
 // github credentials
 variable "github_pat" {
