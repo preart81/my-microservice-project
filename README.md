@@ -172,7 +172,7 @@ kubectl config current-context
 
 ```Bash
 aws eks update-kubeconfig --name <назва_вашого_кластера> --region <регіон>
-aws eks update-kubeconfig --name eks-cluster-lesson-7 --region us-east-1
+aws eks update-kubeconfig --name eks-cluster-devops --region us-east-1
 ```
 
 ### Перевірка інфраструктури за допомогою k9s
@@ -193,9 +193,11 @@ k9s
 terraform output ecr_repository_url
 "https://882961642780.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-preart-18062025214500"
 ```
+
 Визначимо змінну repository в [charts/django-app/values.yaml](charts/django-app/values.yaml)
+
 ```yaml
-  repository: "882961642780.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-preart-18062025214500"
+repository: "882961642780.dkr.ecr.us-east-1.amazonaws.com/ecr-repo-preart-18062025214500"
 ```
 
 Завантажимо образ до AWS ECR
@@ -276,8 +278,8 @@ helm install django-app . --set ecr_repository_url=YOUR_ECR_URL
 helm install django-app . -f values.yaml
 ```
 
-```sh 
-helm install django-app . -f values.yaml 
+```sh
+helm install django-app . -f values.yaml
 
 NAME: django-app
 LAST DEPLOYED: Sun Sep 14 16:27:03 2025
@@ -291,7 +293,31 @@ kubectl get hpa -A
 NAMESPACE   NAME             REFERENCE                          TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
 default     django-app-hpa   Deployment/django-app-deployment   cpu: <unknown>/70%   2         6         0          5m27s
 ```
+
 ![alt text](.mdmedia/05_k9s_django.png)
+
+## Перевірка створених ресурсів ArgoCD, Jenkins
+
+```bash
+# ArgoCD адреса сервера
+kubectl get svc -n argocd
+
+# ArgoCD логін admin, пароль:
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath={.data.password} | base64 -d
+
+# Jenkins admin:admin123 адреса сервера:
+kubectl get svc -n jenkins
+```
+
+![alt text](.mdmedia/03_argocd.png)
+
+![alt text](.mdmedia/04_jenkins.png)
+
+Вигляд інтерфейсу Jenkins з робочим pipeline, що збирає, пушить і оновлює Git:
+
+![alt text](.mdmedia/06_jenkins_web.png)
+
+![alt text](.mdmedia/07_argocd_web.png)
 
 ## Видалення інфраструктури
 
