@@ -23,8 +23,8 @@ repositories:
     # url: https://github.com/YOUR_USERNAME/example-repo.git
     # url: ${github_repo_url} # повна URL-адреса Git-репозиторію
     url: https://github.com/preart81/my-microservice-project.git # повна URL-адреса Git-репозиторію
-    username: ${github_user} # облікові дані для доступу до приватного репозиторію
-    password: ${github_pat}
+    # username: ${github_user} # облікові дані для доступу до приватного репозиторію
+    # password: ${github_pat}
 repoConfig:
   insecure: "true" # дозволяє підключення до репозиторію без перевірки SSL-сертифікатів. Не рекомендується для продакшену
   enableLfs: "true" # дозволяє використання Git LFS (Large File Storage), якщо в репозиторії зберігаються великі файли
