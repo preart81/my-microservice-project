@@ -88,11 +88,14 @@ module "jenkins" {
 }
 
 module "argo_cd" {
-  source          = "./modules/argo_cd"
-  namespace       = "argocd"
-  chart_version   = "5.46.4"
-  github_repo_url = var.github_repo_url
-  github_pat      = var.github_pat
-  github_user     = var.github_user
-  depends_on      = [module.eks]
+  source             = "./modules/argo_cd"
+  namespace          = "argocd"
+  chart_version      = "5.46.4"
+  github_repo_url    = var.github_repo_url
+  github_pat         = var.github_pat
+  github_user        = var.github_user
+  depends_on = [
+    module.eks,
+    module.ecr
+  ]
 }

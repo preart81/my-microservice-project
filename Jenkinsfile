@@ -54,11 +54,11 @@ spec:
           usernamePassword(
             credentialsId: 'github-token',
             usernameVariable: 'GITHUB_USER',
-            passwordVariable: 'GITHUB_TOKEN'
+            passwordVariable: 'GITHUB_PAT'
           )
         ])  {
             sh '''
-          git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GIT_REPO}
+          git clone https://${GITHUB_USER}:${GITHUB_PAT}@github.com/${GITHUB_USER}/${GIT_REPO}
           cd my-microservice-project
           git checkout ${GIT_BRANCH} || git checkout -b ${GIT_BRANCH}
           cd django
@@ -84,21 +84,21 @@ spec:
             usernamePassword(
               credentialsId: 'github-token',
               usernameVariable: 'GITHUB_USER',
-              passwordVariable: 'GITHUB_TOKEN'
+              passwordVariable: 'GITHUB_PAT'
             )
-        ]) {
+          ]) {
             sh '''
-          cd my-microservice-project
-          git checkout ${GIT_BRANCH} || git checkout -b ${GIT_BRANCH}
-          cd charts/django-app
-          sed -i "s/tag: .*/tag: $IMAGE_TAG/" values.yaml
-          git config user.email "$COMMIT_EMAIL"
-          git config user.name "$COMMIT_NAME"
-          git add values.yaml
-          git commit -m "Update image tag to $IMAGE_TAG"
-          git push origin ${GIT_BRANCH}
-        '''
-        }
+              cd my-microservice-project
+              git checkout ${GIT_BRANCH}
+              cd charts/django-app
+              sed -i "s/tag: .*/tag: $IMAGE_TAG/" values.yaml
+              git config user.email "$COMMIT_EMAIL"
+              git config user.name "$COMMIT_NAME"
+              git add values.yaml
+              git commit -m "Update image tag to $IMAGE_TAG"
+              git remote set-url origin https://${GITHUB_PAT}@github.com/${GITHUB_USER}/${GIT_REPO}
+            '''
+          }
         }
       }
     }

@@ -6,12 +6,12 @@ variable "region" {
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
-  default     = "eks-cluster-lesson-7"
+  default     = "eks-cluster-devops"
 }
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
-  default     = "vpc-lesson-7"
+  default     = "vpc-devops"
 }
 variable "instance_type" {
   description = "EC2 instance type for the worker nodes"
