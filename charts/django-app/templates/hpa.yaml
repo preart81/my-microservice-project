@@ -7,7 +7,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     # name: django-app-deployment
-    name: example-app-django
+    name: {{ .Release.Name }}-django
   minReplicas: 2
   maxReplicas: 6
   metrics:
