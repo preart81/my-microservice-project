@@ -13,7 +13,7 @@
 Структура проекту
 
 ```sh
-lesson-7/
+Progect/
 │
 ├── main.tf                  # Головний файл для підключення модулів
 ├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB
@@ -36,11 +36,31 @@ lesson-7/
 │   │   ├── variables.tf     # Змінні для ECR
 │   │   └── outputs.tf       # Виведення URL репозиторію
 │   │
-│   └── eks/                 # Модуль для Kubernetes кластера
-│       ├── eks.tf           # Створення кластера
-│       ├── variables.tf     # Змінні для EKS
-│       └── outputs.tf       # Виведення інформації про кластер
-│
+│   ├── eks/                      # Модуль для Kubernetes кластера
+│   │   ├── eks.tf                # Створення кластера
+│   │   ├── aws_ebs_csi_driver.tf # Встановлення плагіну csi drive
+│   │   ├── variables.tf          # Змінні для EKS
+│   │   └── outputs.tf            # Виведення інформації про кластер
+│   │
+│   ├── jenkins/             # Модуль для Helm-установки Jenkins
+│   │   ├── jenkins.tf       # Helm release для Jenkins
+│   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
+│   │   ├── providers.tf     # Оголошення провайдерів
+│   │   ├── values.yaml      # Конфігурація jenkins
+│   │   └── outputs.tf       # Виводи (URL, пароль адміністратора)
+│   │
+│   └── argo_cd/             # Модуль для Helm-установки Argo CD
+│       ├── jenkins.tf       # Helm release для Jenkins
+│       ├── variables.tf     # Змінні (версія чарта, namespace, repo URL тощо)
+│       ├── providers.tf     # Kubernetes+Helm.  переносимо з модуля jenkins
+│       ├── values.yaml      # Кастомна конфігурація Argo CD
+│       └── outputs.tf       # Виводи (hostname, initial admin password)
+│		    ├──charts/       # Helm-чарт для створення app'ів
+│ 	 	    ├── Chart.yaml
+│	  	    └── values.yaml          # Список applications, repositories
+│			    ├── templates/
+│		        ├── application.yaml
+│		        └── repository.yaml
 ├── charts/                     # Каталог з helm-чартами
 │   └── django-app/             # Чарт для застосунку на Django
 │       ├── templates/          # Каталог з шаблонами manifest-файлів
@@ -70,15 +90,6 @@ terraform apply
 # Видалення інфраструктури
 terraform destroy
 ```
-
-## Опис модулів
-
-- [vpc](modules/vpc) - модуль для створення VPC, підмереж, Internet Gateway
-- [ecr](modules/ecr) - модуль для створення ECR репозиторію
-- [s3](modules/s3-backend) - модуль для створення S3-бакету та DynamoDB для зберігання стейтів
-- [charts/django-app](charts/django-app) - Helm-чарт для розгортання Django-додатку з використанням Nginx, PostgreSQL
-
-Для додаткової інформації див. коментарі всередині модулів.
 
 ## Налаштування доступів
 
@@ -316,6 +327,8 @@ kubectl get svc -n jenkins
 Вигляд інтерфейсу Jenkins з робочим pipeline, що збирає, пушить і оновлює Git:
 
 ![alt text](.mdmedia/06_jenkins_web.png)
+
+Argo application із повною синхронізацією Helm chart
 
 ![alt text](.mdmedia/07_argocd_web.png)
 
