@@ -1,5 +1,5 @@
 #-------------Backend-----------------
-output "s3_bucket_name" {
+/* output "s3_bucket_name" {
   description = "Назва S3-бакета"
   value       = module.s3_backend.s3_bucket_name
 }
@@ -7,7 +7,7 @@ output "s3_bucket_name" {
 output "s3_bucket_url" {
   description = "URL S3-бакета"
   value       = module.s3_backend.s3_bucket_url
-}
+} */
 #-------------VPC-----------------
 output "vpc_id" {
   description = "ID створеної VPC"
@@ -82,4 +82,9 @@ output "argocd_server_service" {
 output "argocd_admin_password" {
   description = "Initial admin password"
   value       = module.argo_cd.admin_password
+}
+#-------------RDS-----------------
+output "rds_endpoint" {
+  description = "RDS endpoint for connecting to the database"
+  value       = module.rds.rds_endpoint
 }

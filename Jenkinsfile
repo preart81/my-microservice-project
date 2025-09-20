@@ -43,7 +43,7 @@ spec:
     COMMIT_EMAIL = 'jenkins@localhost'
     COMMIT_NAME  = 'jenkins'
     GIT_REPO     = 'my-microservice-project.git'
-    GIT_BRANCH   = 'lesson-8-9'
+    GIT_BRANCH   = 'lesson-db-module'
     GITHUB_USER  = 'preart81'
   }
   stages {

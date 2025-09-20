@@ -25,3 +25,12 @@ variable "github_pat" {
   description = "GitHub personal access token for ArgoCD applications"
   type        = string
 }
+variable "github_branch" {
+  description = "GitHub branch for ArgoCD applications"
+  type        = string
+  default     = "main"
+}
+variable "rds_endpoint" {
+  description = "RDS endpoint for database connection"
+  type        = string
+}

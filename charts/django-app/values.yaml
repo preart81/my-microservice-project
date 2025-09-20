@@ -13,7 +13,7 @@ ingress:
 
 config:
   POSTGRES_PORT: 5432
-  POSTGRES_HOST: db
+  POSTGRES_HOST: db # Значення за замовчуванням, буде перезаписано ArgoCD
   POSTGRES_USER: django_user
   POSTGRES_DB: django_db
   POSTGRES_PASSWORD: pass9764gd
