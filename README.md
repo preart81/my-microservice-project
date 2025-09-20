@@ -42,6 +42,13 @@ Progect/
 │   │   ├── variables.tf          # Змінні для EKS
 │   │   └── outputs.tf            # Виведення інформації про кластер
 │   │
+│   ├── rds/                 # Модуль для RDS
+│   │   ├── rds.tf           # Створення RDS бази даних
+│   │   ├── aurora.tf        # Створення aurora кластера бази даних
+│   │   ├── shared.tf        # Спільні ресурси
+│   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
+│   │   └── outputs.tf
+│   │
 │   ├── jenkins/             # Модуль для Helm-установки Jenkins
 │   │   ├── jenkins.tf       # Helm release для Jenkins
 │   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
@@ -86,6 +93,9 @@ terraform plan
 
 # Застосування змін до інфраструктури
 terraform apply
+
+# Застосування тільки окремих модулів
+terraform apply -target=module.vpc -target=module.s3-backend -target=module.rds
 
 # Видалення інфраструктури
 terraform destroy
