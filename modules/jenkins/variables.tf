@@ -32,5 +32,5 @@ variable "github_repo_url" {
 variable "github_branch" {
   description = "GitHub branch name"
   type        = string
-  default     = "lesson-db-module"
+  default     = "final-project"
 }
