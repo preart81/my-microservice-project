@@ -108,29 +108,35 @@ module "argo_cd" {
 
 # Підключаємо модуль Relational Database Service
 module "rds" {
-  source                  = "./modules/rds"
-  rds_cluster_name        = var.rds_cluster_name
-  use_aurora              = var.use_aurora
+  source               = "./modules/rds"
+  rds_cluster_name     = var.rds_cluster_name
+  use_aurora           = var.use_aurora
+  aurora_replica_count = var.aurora_replica_count
+
+
+  # --- Aurora-only ---
+  engine_cluster                = var.engine_cluster
+  engine_version_cluster        = var.engine_version_cluster
+  parameter_group_family_aurora = var.parameter_group_family_aurora
+
+  # --- RDS-only ---
+  engine                     = var.engine
+  engine_version             = var.engine_version
+  parameter_group_family_rds = var.parameter_group_family_rds
+
+  # --- Common ---
+  instance_class          = var.instance_class
+  allocated_storage       = var.allocated_storage
   db_name                 = var.db_name
   username                = var.username
   password                = var.password
-  instance_class          = var.instance_class
-  engine                  = var.engine
-  engine_version          = var.engine_version
-  engine_cluster          = var.engine_cluster
-  engine_version_cluster  = var.engine_version_cluster
-  multi_az                = var.multi_az
+  subnet_private_ids      = module.vpc.private_subnets
+  subnet_public_ids       = module.vpc.public_subnets
   publicly_accessible     = var.publicly_accessible
+  vpc_id                  = module.vpc.vpc_id
+  vpc_cidr_block          = var.vpc_cidr_block
+  multi_az                = var.multi_az
   backup_retention_period = var.backup_retention_period
-  aurora_replica_count    = var.aurora_replica_count
-
-  vpc_id             = module.vpc.vpc_id
-  vpc_cidr_block     = var.vpc_cidr_block
-  subnet_private_ids = module.vpc.private_subnets
-  subnet_public_ids  = module.vpc.public_subnets
-
-  parameter_group_family_rds    = var.parameter_group_family_rds
-  parameter_group_family_aurora = var.parameter_group_family_aurora
 
   parameters = {
     max_connections = "200"
@@ -142,5 +148,6 @@ module "rds" {
     Environment = var.environment
     Project     = var.project
   }
+  
   depends_on = [module.vpc]
 }
