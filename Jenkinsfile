@@ -33,10 +33,6 @@ spec:
     }
   }
   environment {
-    // ECR_REGISTRY = '804054839611.dkr.ecr.us-east-1.amazonaws.com'
-    // IMAGE_NAME   = 'ecr-repo-18062025214500'
-    // ECR_REGISTRY = "${output.ecr_repository_url}" // output з outputs.tf
-    // IMAGE_NAME   = "${variable.repository_name}"  // variable з variables.tf
     ECR_REGISTRY = '882961642780.dkr.ecr.us-east-1.amazonaws.com'
     IMAGE_NAME   = 'ecr-repo-preart-18062025214500'
     IMAGE_TAG    = "v1.0.${BUILD_NUMBER}"

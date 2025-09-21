@@ -99,11 +99,7 @@ module "argo_cd" {
   github_user     = var.github_user
   github_branch   = var.github_branch
   rds_endpoint    = module.rds.rds_endpoint
-  depends_on = [
-    module.eks,
-    module.ecr,
-    module.rds
-  ]
+  depends_on      = [module.eks, module.ecr, module.rds]
 }
 
 # Підключаємо модуль Relational Database Service
@@ -148,6 +144,6 @@ module "rds" {
     Environment = var.environment
     Project     = var.project
   }
-  
+
   depends_on = [module.vpc]
 }
