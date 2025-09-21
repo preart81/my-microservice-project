@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-django
+  name: {{ include "django-app.fullname" . }}-config
 spec:
   replicas: 1
   selector:
@@ -20,5 +20,6 @@ spec:
             - containerPort: {{ .Values.service.port }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-config
+                name: {{ include "django-app.fullname" . }}-config
+
 

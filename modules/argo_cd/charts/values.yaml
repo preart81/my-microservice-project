@@ -14,7 +14,7 @@ applications:
           - values.yaml
         values: |
           config:
-            POSTGRES_HOST: "${rds_endpoint}"
+            POSTGRES_HOST: ${rds_endpoint}
     destination: # вказує, куди саме деплоїти застосунок
       server: https://kubernetes.default.svc # адреса Kubernetes API-сервера. Для внутрішнього кластера використовується https://kubernetes.default.svc
       namespace: default # Kubernetes namespace для цього конкретного застосунку
@@ -22,6 +22,73 @@ applications:
       automated: # включає автоматичне застосування змін
         prune: true # видаляти ресурси, які більше не описані у Git
         selfHeal: true # автоматично виправляти відхилення від Git-стану, якщо щось змінилось вручну у кластері
+  - name: kube-prometheus-stack
+    namespace: argocd
+    project: default
+    source:
+      repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 45.5.0
+      helm:
+        values: |
+          namespaceOverride: monitoring
+          prometheus:
+            service:
+              type: ClusterIP
+            prometheusSpec:
+              replicas: 1
+              retention: 10d
+              serviceMonitorSelectorNilUsesHelmValues: false
+              serviceMonitorSelector:
+                matchLabels:
+                  release: monitoring
+          grafana:
+            enabled: true
+            service:
+              type: ClusterIP
+            adminPassword: admin
+            defaultDashboardsEnabled: true
+          alertmanager:
+            enabled: true
+            service:
+              type: ClusterIP
+            alertmanagerSpec:
+              replicas: 1
+          pushgateway:
+            enabled: true
+            service:
+              type: ClusterIP
+            serviceMonitor:
+              enabled: true
+              interval: 15s
+              labels:
+                release: monitoring
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: monitoring
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true
+
+  - name: django-db-secret
+    namespace: default
+    project: default
+    source:
+      repoURL: ${github_repo_url}
+      path: charts/secret
+      targetRevision: ${github_branch}
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+
 repositories:
   - name: example-app # ім’я репозиторію для внутрішнього використання
     # url: https://github.com/YOUR_USERNAME/example-repo.git
