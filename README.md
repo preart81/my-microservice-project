@@ -212,7 +212,9 @@ aws eks update-kubeconfig --name <назва_вашого_кластера> --re
 aws eks update-kubeconfig --name eks-cluster-devops --region us-east-1
 ```
 
-### Перевірка інфраструктури за допомогою k9s
+### Перевірка інфраструктури
+
+Перевіримо сервіси за допомогою k9s
 
 ```sh
 k9s
@@ -220,7 +222,113 @@ k9s
 
 ![alt text](.mdmedia/02_k9s.png)
 
-## Ручне розгортання сервісів (для довідки)
+Перевіримо стан ресурсів через `kubectl`
+
+<details>
+<summary>kubectl get all -n jenkins</summary>
+
+```sh
+kubectl get all -n jenkins
+NAME            READY   STATUS    RESTARTS   AGE
+pod/jenkins-0   2/2     Running   0          3h17m
+
+NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
+service/jenkins         LoadBalancer   172.20.213.133   a47a5bd8351a64a378f1fd776eb50530-791557898.us-east-1.elb.amazonaws.com   80:30862/TCP   3h17m
+service/jenkins-agent   ClusterIP      172.20.218.47    <none>                                                                   50000/TCP      3h17m
+
+NAME                       READY   AGE
+statefulset.apps/jenkins   1/1     3h17m
+```
+
+</details>
+
+<details>  
+<summary>kubectl get all -n argocd</summary>
+
+```sh
+kubectl get all -n argocd
+NAME                                                           READY   STATUS    RESTARTS   AGE
+pod/argo-cd-argocd-application-controller-0                    1/1     Running   0          70m
+pod/argo-cd-argocd-applicationset-controller-6b568b5cc-62xkb   1/1     Running   0          70m
+pod/argo-cd-argocd-dex-server-6d9f4b9b76-ntxgf                 1/1     Running   0          70m
+pod/argo-cd-argocd-notifications-controller-78dcd4cb9-p6jzc    1/1     Running   0          70m
+pod/argo-cd-argocd-redis-8848d97fb-dtfs8                       1/1     Running   0          70m
+pod/argo-cd-argocd-repo-server-6fd8f76b4d-t9q9j                1/1     Running   0          70m
+pod/argo-cd-argocd-server-ffc875c8b-vp9ks                      1/1     Running   0          70m
+
+NAME                                               TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)                      AGE
+service/argo-cd-argocd-applicationset-controller   ClusterIP      172.20.151.226   <none>                                                                    7000/TCP                     70m
+service/argo-cd-argocd-repo-server                 ClusterIP      172.20.253.113   <none>                                                                    8081/TCP                     70m
+service/argo-cd-argocd-server                      LoadBalancer   172.20.17.32     a62ad29d6e8c6422e8cc3deef656b794-1366630783.us-east-1.elb.amazonaws.com   80:31417/TCP,443:30532/TCP   70m
+
+NAME                                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/argo-cd-argocd-applicationset-controller   1/1     1            1           70m
+deployment.apps/argo-cd-argocd-dex-server                  1/1     1            1           70m
+deployment.apps/argo-cd-argocd-notifications-controller    1/1     1            1           70m
+deployment.apps/argo-cd-argocd-redis                       1/1     1            1           70m
+deployment.apps/argo-cd-argocd-repo-server                 1/1     1            1           70m
+deployment.apps/argo-cd-argocd-server                      1/1     1            1           70m
+
+NAME                                                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/argo-cd-argocd-applicationset-controller-6b568b5cc   1         1         1       70m
+replicaset.apps/argo-cd-argocd-dex-server-6d9f4b9b76                 1         1         1       70m
+replicaset.apps/argo-cd-argocd-notifications-controller-78dcd4cb9    1         1         1       70m
+replicaset.apps/argo-cd-argocd-redis-8848d97fb                       1         1         1       70m
+replicaset.apps/argo-cd-argocd-repo-server-6fd8f76b4d                1         1         1       70m
+replicaset.apps/argo-cd-argocd-server-ffc875c8b                      1         1         1       70m
+
+NAME                                                     READY   AGE
+statefulset.apps/argo-cd-argocd-application-controller   1/1     70m
+```
+
+</details>
+
+<details>
+<summary>kubectl get all -n monitoring</summary>
+
+```sh
+kubectl get all -n monitoring
+NAME                                                         READY   STATUS    RESTARTS   AGE
+pod/alertmanager-monitoring-kube-prometheus-alertmanager-0   2/2     Running   0          23m
+pod/monitoring-grafana-577868b7c8-f5fdx                      3/3     Running   0          23m
+pod/monitoring-kube-prometheus-operator-79c79654f-2q4v6      1/1     Running   0          23m
+pod/monitoring-kube-state-metrics-7fc7c7469d-6k956           1/1     Running   0          23m
+pod/monitoring-prometheus-node-exporter-qcq6d                1/1     Running   0          23m
+pod/monitoring-prometheus-node-exporter-wq6kz                1/1     Running   0          23m
+pod/prometheus-monitoring-kube-prometheus-prometheus-0       2/2     Running   0          23m
+
+NAME                                              TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+service/alertmanager-operated                     ClusterIP   None             <none>        9093/TCP,9094/TCP,9094/UDP   23m
+service/monitoring-grafana                        ClusterIP   172.20.51.173    <none>        80/TCP                       23m
+service/monitoring-kube-prometheus-alertmanager   ClusterIP   172.20.118.244   <none>        9093/TCP,8080/TCP            23m
+service/monitoring-kube-prometheus-operator       ClusterIP   172.20.132.251   <none>        443/TCP                      23m
+service/monitoring-kube-prometheus-prometheus     ClusterIP   172.20.63.75     <none>        9090/TCP,8080/TCP            23m
+service/monitoring-kube-state-metrics             ClusterIP   172.20.198.130   <none>        8080/TCP                     23m
+service/monitoring-prometheus-node-exporter       ClusterIP   172.20.50.98     <none>        9100/TCP                     23m
+service/prometheus-operated                       ClusterIP   None             <none>        9090/TCP                     23m
+
+NAME                                                 DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+daemonset.apps/monitoring-prometheus-node-exporter   2         2         2       2            2           kubernetes.io/os=linux   23m
+
+NAME                                                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/monitoring-grafana                    1/1     1            1           23m
+deployment.apps/monitoring-kube-prometheus-operator   1/1     1            1           23m
+deployment.apps/monitoring-kube-state-metrics         1/1     1            1           23m
+
+NAME                                                            DESIRED   CURRENT   READY   AGE
+replicaset.apps/monitoring-grafana-577868b7c8                   1         1         1       23m
+replicaset.apps/monitoring-kube-prometheus-operator-79c79654f   1         1         1       23m
+replicaset.apps/monitoring-kube-state-metrics-7fc7c7469d        1         1         1       23m
+
+NAME                                                                    READY   AGE
+statefulset.apps/alertmanager-monitoring-kube-prometheus-alertmanager   1/1     23m
+statefulset.apps/prometheus-monitoring-kube-prometheus-prometheus       1/1     23m
+
+```
+
+</details>
+
+## Ручне розгортання сервісів
 
 <details>
   <summary>Цей розділ для довідки, виконувати його інструкції не потрібно - всі сервіси в кінцевому варіанті проєкту розгортаються автоматично</summary>
@@ -531,9 +639,103 @@ kubectl get svc -n jenkins
 
 </details>
 
+## Підготовка додатку
+
+Для перевірки роботи додатку, потрібно його ініціалізувати
+
+```sh
+# застосовуємо міграції БД
+python manage.py migrate
+# створюємо користувача
+python manage.py createsuperuser
+```
+
+<details>
+<summary>Скриншоти працюючого додатку</summary>
+
+![alt text](.mdmedia/11_3_app_1.png)
+![alt text](.mdmedia/11_3_app_2.png)
+
+</details>
+
+## Моніторинг та перевірка метрик
+
+Моніторинг реалізовано за допомогою
+
+- Prometheus — система збору та зберігання метрик;
+- Grafana — платформа візуалізації, яка перетворює дані на зрозумілі графіки й дашборди.
+
+```sh
+# Додати репозиторій Prometheus Community
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# Встановити kube-prometheus-stack (включає Prometheus Operator)
+helm install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace
+
+kubectl apply -f manifest
+
+```
+
+<details>
+<summary>Секрети для доступу подивимось в k9s</summary>
+
+Secrets > Describe > Toggle Decode
+
+![alt text](.mdmedia/11_1_k9s_secret.png)
+
+</details>
+<details>
+
+<summary>Налаштовуємо port-forward через k9s або kubectl</summary>
+
+```sh
+# Prometheus
+kubectl port-forward -n monitoring svc/prometheus-server 9090:80
+# Grafana
+kubectl port-forward svc/grafana 3000:80 -n monitoring
+
+```
+
+</details>
+
+<details>
+<summary>Перевіряємо статус targets в Prometheus</summary>
+
+Перейдемо на вкладку Target health:
+
+- Показує **всі endpoints (таргети)**, які Prometheus намагається опитувати;
+- Для кожного видно:
+- `UP` або `DOWN`;
+- адресу;
+- останній час успішного scrape;
+- HTTP-код і помилки.
+
+![alt text](.mdmedia/11_2_prometheus.png)
+
+</details>
+
+<details>
+<summary>Перевіряємо стан метрик в Grafana Dashboard</summary>
+
+![alt text](.mdmedia/11_2_grafana_dashboard.png)
+
+</details>
+
 ## Видалення інфраструктури
 
 ```sh
 # Видалення інфраструктури
 terraform destroy -auto-approve
 ```
+
+<style>
+pre, code {
+    white-space: pre !important;
+    overflow-x: auto !important;
+    word-wrap: normal !important;
+    word-break: normal !important;
+}
+</style>
