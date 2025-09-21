@@ -1,19 +1,23 @@
-# IaC (Terraform)
+# Розгортання інфраструктури DevOps на AWS
 
-Опис завдання
+Проєкт виконує збирання та розгортання повної інфраструктури DevOps на AWS з використанням Terraform, що включає наступні компоненти:
 
-Завдання полягає у створенні Terraform-структури для інфраструктури на AWS.
+- Розгортання Kubernetes кластера (EKS) з підтримкою CI/CD
+- Інтеграція Jenkins для автоматизації збірки та деплою
+- Інсталяція Argo CD для управління застосунками
+- Налаштування бази даних (RDS або Aurora)
+- Організація контейнерного реєстру (ECR)
+- Моніторинг з Prometheus та Grafana
 
-Потрібно налаштувати:
+Технічні характеристики:
 
-1. Синхронізацію стейт-файлів у S3 з використанням DynamoDB для блокування.
-2. Мережеву інфраструктуру (VPC) з публічними та приватними підмережами.
-3. ECR (Elastic Container Registry) для зберігання Docker-образів.
+- **Інфраструктура:** AWS з використанням Terraform
+- **Компоненти:** VPC, EKS, RDS, ECR, Jenkins, Argo CD, Prometheus, Grafana
 
-Структура проекту
+## Структура проєкту
 
 ```sh
-Progect/
+Project/
 │
 ├── main.tf                  # Головний файл для підключення модулів
 ├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB
@@ -82,26 +86,15 @@ Progect/
 
 ```
 
-Команди для ініціалізації та запуску terraform:
+## Налаштування Terraform
 
-```sh
-# Ініціалізація робочого каталогу Terraform (створення файлу terraform.tfstate)
-terraform init
+Потрібно налаштувати:
 
-# Огляд змін (планування) до інфраструктури
-terraform plan
+1. Синхронізацію стейт-файлів у S3 з використанням DynamoDB для блокування.
+2. Мережеву інфраструктуру (VPC) з публічними та приватними підмережами.
+3. ECR (Elastic Container Registry) для зберігання Docker-образів.
 
-# Застосування змін до інфраструктури
-terraform apply
-
-# Застосування тільки окремих модулів
-terraform apply -target=module.vpc -target=module.s3-backend -target=module.rds
-
-# Видалення інфраструктури
-terraform destroy
-```
-
-## Налаштування доступів
+### Налаштування доступів
 
 Для зручності заповнимо дані заповнюємо в [terraform.tfvars](terraform.tfvars) згідно шаблону:
 
@@ -118,15 +111,24 @@ github_pat = "ghp_token"
 
 # повна URL-адреса Git-репозиторію https://github.com/YOUR_USERNAME/example-repo.git
 github_repo_url = "https://github.com/YOUR_USERNAME/example-repo.git"
+
+# гілка з кодом застосунку
+github_branch = "main"
+
+# ---------------- RDS ----------------
+# rds_cluster_name = "rds-cluster"
+use_aurora = false
+db_name = "django_db"
+username = "DJANGO_APP_DB_USERNAME"
+password = "DJANGO_APP_DB_PASS"
+
 ```
 
 Файл додано в [.gitignore](.gitignore), тому він не включається в репозиторій.
 
-## Перший запуск
+### Перший запуск. Підготовка backend
 
 Перед першим запуском може виникнути помилка збереження стейта, оскільки ще не створено DynamoDB та bucket. Для уникнення помилки потрібно виконати перший запуск наступним чином:
-
-### Підготовка backend
 
 1. S3-бакет з іменем, налаштованим у параметрі `bucket_name` [main.tf](main.tf) повинен бути створений
    ([Terraform / Configuration Language / Backend block /
@@ -137,7 +139,9 @@ github_repo_url = "https://github.com/YOUR_USERNAME/example-repo.git"
 4. Після того, як ресурси будуть створені, розкоментуємо конфігурацію бекенда "s3" у [backend.tf](backend.tf).
 5. Нарешті, знову запускаємо `terraform init`. Terraform виявить існуючий локальний стан і попросить перенести його до новоствореного бекенду S3.
 
-## Створення інфраструктури
+## Створення інфраструктури з використанням Terraform
+
+**Команди для ініціалізації та запуску terraform:**
 
 ```sh
 # Ініціалізація робочого каталогу Terraform (створення файлу terraform.tfstate)
@@ -148,6 +152,18 @@ terraform plan
 
 # Застосування змін до інфраструктури
 terraform apply
+
+# Застосування змін до інфраструктури без підтвердження
+terraform apply -auto-approve
+
+# Застосування тільки окремих модулів
+terraform apply -target=module.vpc -target=module.s3-backend -target=module.rds
+
+# Видалення інфраструктури
+terraform destroy
+
+# Видалення інфраструктури без підтвердження
+terraform destroy -auto-approve
 ```
 
 ![alt text](.mdmedia/01_terraform.png)
@@ -160,19 +176,19 @@ terraform apply
 
 - macOS (через Homebrew):
 
-  ```Bash
+  ```sh
   brew install k9s
   ```
 
   Linux (через Homebrew):
 
-  ```Bash
+  ```sh
   brew install k9s
   ```
 
 - Windows (через Scoop або Chocolatey):
 
-  ```Bash
+  ```sh
   # Scoop
   scoop install k9s
 
@@ -180,31 +196,36 @@ terraform apply
   choco install k9s
   ```
 
-### Налаштування доступу до Kubernetes
+### Налаштування доступу k9s до Kubernetes
 
 K9s використовує той самий файл конфігурації, що й kubectl. Щоб перевірити, чи все налаштовано правильно, виконайте команду:
 
-```Bash
+```sh
 kubectl config current-context
 ```
 
 Якщо ця команда повертає назву вашого кластера, k9s зможе до нього підключитися.
 Якщо повертає помилку - потрібно налаштувати EKS
 
-```Bash
+```sh
 aws eks update-kubeconfig --name <назва_вашого_кластера> --region <регіон>
 aws eks update-kubeconfig --name eks-cluster-devops --region us-east-1
 ```
 
 ### Перевірка інфраструктури за допомогою k9s
 
-```bash
+```sh
 k9s
 ```
 
 ![alt text](.mdmedia/02_k9s.png)
 
-## Завантаження Docker-образу до ECR
+## Ручне розгортання сервісів (для довідки)
+
+<details>
+  <summary>Цей розділ для довідки, виконувати його інструкції не потрібно - всі сервіси в кінцевому варіанті проєкту розгортаються автоматично</summary>
+
+### Завантаження Docker-образу до ECR
 
 Завантажимо Docker-образ Django, який створювали в гілці lesson-4, до ECR, використовуючи AWS CLI.
 
@@ -277,7 +298,7 @@ aws ecr describe-images --repository-name ecr-repo-preart-18062025214500 --regio
 }
 ```
 
-## Розгортання Django додатку через Helm
+### Розгортання Django додатку через Helm
 
 1. Встановлення Helm (якщо потрібно)
 
@@ -317,9 +338,13 @@ default     django-app-hpa   Deployment/django-app-deployment   cpu: <unknown>/7
 
 ![alt text](.mdmedia/05_k9s_django.png)
 
+</details>
+
 ## Перевірка створених ресурсів ArgoCD, Jenkins
 
-```bash
+**Для роботи з сервісами ArgoCD, Jenkins отримаємо їх адреси та початкові налаштування:**
+
+```sh
 # ArgoCD адреса сервера
 kubectl get svc -n argocd
 
@@ -334,17 +359,181 @@ kubectl get svc -n jenkins
 
 ![alt text](.mdmedia/04_jenkins.png)
 
-Вигляд інтерфейсу Jenkins з робочим pipeline, що збирає, пушить і оновлює Git:
+<details>
+  <summary>Вигляд інтерфейсу Jenkins з робочим pipeline, що збирає, пушить і оновлює Git:</summary>
 
 ![alt text](.mdmedia/06_jenkins_web.png)
 
-Argo application із повною синхронізацією Helm chart
+</details>
+
+<details>
+  <summary>Argo application із повною синхронізацією Helm chart</summary>
 
 ![alt text](.mdmedia/07_argocd_web.png)
 
+</details>
+
+## Створення гнучкого Terraform-модуля для баз даних
+
+<details> 
+<summary>Функціонал модуля:</summary>
+Модуль гнучко підтримує обидва сценарії: достатньо змінити значення параметра use_aurora, щоб переключитись між класичним RDS-інстансом і масштабованим Aurora-кластером із репліками.
+
+Такий підхід дозволяє DevOps-інженеру швидко адаптувати інфраструктуру під вимоги продуктивності, надійності або бюджету без дублювання коду.
+
+- Налаштування типу RDS за допомогою змінної `use_aurora`
+
+  ```hcl
+  # main.tf
+  module "rds" {
+    ...
+    use_aurora              = var.use_aurora
+    ...
+  }
+
+  # variables.tf
+  variable "use_aurora" {
+    description = "Чи використовувати Aurora (true) або стандартний RDS (false)"
+    type        = bool
+    default     = false
+  }
+  ```
+
+  - `use_aurora = true` → створюється Aurora Cluster + writer;
+  - `use_aurora = false` → створюється одна `aws_db_instance`;
+
+- В обох випадках:
+  - створюється `aws_db_subnet_group`;
+  - створюється `aws_security_group`;
+  - створюється `parameter group` з базовими параметрами (`max_connections`, `log_statement`, `work_mem`);
+- Параметри `engine`, `engine_version`, `instance_class`, `multi_az` задаються через змінні.
+</details>
+
+<details>
+  <summary>Опис усіх змінних</summary>
+
+**main.tf Основні параметри для створення БД**
+
+- `rds_cluster_name` — назва інстансу (або кластера, якщо Aurora);
+- `engine` — тип БД: `postgres`, `mysql`, `aurora`, `aurora-mysql`, `aurora-postgresql`;
+- `engine_version` — версія БД;
+- `instance_class` — клас EC2-подібного інстансу (`db.t3.medium`, `db.t3.micro`);
+- `allocated_storage` — обсяг у ГБ, якщо це звичайна RDS.
+- Aurora-only
+  - `engine_cluster` — тип бази даних, яку буде запускати Aurora. У нашому випадку це `aurora-postgresql`, тобто Aurora із сумісністю з PostgreSQL. Можна також використати `aurora-mysql`, якщо потрібно створити кластер на базі MySQL.
+  - `engine_version_cluster` — конкретна версія бази даних, яку запускатиме Aurora-кластер. Наприклад, `"15.3"` означає, що буде розгорнута Aurora PostgreSQL, сумісна з PostgreSQL 15.3. Важливо використовувати **лише ті версії, які офіційно підтримуються Aurora** (вони відстають від оригінальних релізів PostgreSQL).
+  - `parameter_group_family_aurora` — «родина» параметрів для Aurora. Вона має точно відповідати вибраній версії engine. Наприклад, для `aurora-postgresql` із версією `15.3` потрібно вказати `aurora-postgresql15`. Це визначає набір доступних параметрів, які можна налаштувати в `parameter group`.
+
+**Безпека та мережа**
+
+- `subnet_public_ids` — список публічних сабнетів (через модуль vpc);
+- `vpc_id` — вибір мережі (через модуль vpc);
+- `publicly_accessible` — `false` означає, що БД доступна лише з приватної мережі;
+- `multi_az` — створення резервної репліки в іншій AZ для відмовостійкості.
+
+**Parameter Group**
+
+- `parameter_group_family` — група параметрів, що сумісна з engine / version;
+- `parameters` — словник довільних параметрів, які підуть у `parameter_group`.
+
+**Файл: rds.tf**
+
+- `aws_db_instance.standard` — створює **звичайний інстанс Amazon RDS**, наприклад для PostgreSQL або MySQL.  
+  Цей інстанс не є частиною Aurora-кластера.
+
+  - `identifier` — унікальне ім’я інстансу БД в AWS. Воно буде використане в DNS-імені БД.
+  - `engine` — тип бази даних, наприклад `postgres`, `mysql`, `mariadb`, `oracle-se2` тощо.
+  - `engine_version` — конкретна версія бази даних, яку потрібно встановити (наприклад, `"17.2"` для PostgreSQL).
+  - `instance_class` — тип EC2-подібного інстансу, на якому працює БД (наприклад, `db.t3.medium`).
+  - `allocated_storage` — обсяг дискового простору в ГБ, який буде виділено під БД. Обов’язковий для звичайної RDS.
+  - `db_name` — ім’я бази даних, яка буде створена за замовчуванням.
+  - `username` / `password` — облікові дані адміністративного користувача БД.
+  - `db_subnet_group_name` — назва subnet group, у якій буде запущений інстанс (має містити приватні або публічні сабнети з VPC).
+  - `vpc_security_group_ids` — список Security Group, які будуть застосовані до інстансу БД.
+  - `multi_az` — логічне значення, яке вмикає Multi-AZ деплоймент для підвищеної відмовостійкості (створення standby-репліки в іншій AZ).
+  - `publicly_accessible` — визначає, чи буде БД доступна з інтернету (`true` для публічного доступу, `false` — тільки в межах VPC).
+  - `backup_retention_period` — кількість днів для збереження автоматичних резервних копій (0 — вимкнено).
+  - `parameter_group_name` — назва параметр-групи (`aws_db_parameter_group`), яка задає специфічні конфігурації для движка БД (наприклад, `max_connections`, `log_min_duration_statement`).
+
+- `aws_db_parameter_group.standard`:
+  - `name` — унікальна назва для параметр-групи.
+  - `family` — тип параметр-групи, який має **відповідати версії бази** (`postgres17` для PostgreSQL 17.х, `mysql8.0` для MySQL 8.0 тощо).
+  - `parameter` — задає список параметрів конфігурації для БД, наприклад:
+  - `max_connections = "200"`
+  - `log_min_duration_statement = "500"`
+  - `apply_method = "pending-reboot"` — визначає, коли зміни параметрів будуть застосовані. `pending-reboot` означає, що інстанс буде потрібно перезапустити вручну для застосування.
+
+**shared.tf — спільні ресурси для Aurora та звичайного RDS**
+
+- `aws_db_subnet_group.default` — створює **групу сабнетів**, у якій буде розміщено RDS або Aurora.
+- Потрібно вказати список `subnet_ids`, у яких Amazon буде запускати інстанси бази.
+- `subnet_ids = var.publicly_accessible ? var.subnet_public_ids : var.subnet_private_ids`
+- Логіка перемикає сабнети залежно від того, чи має бути БД доступна з інтернету:
+- `publicly_accessible = true` → використовуються публічні сабнети;
+- `false` → приватні.
+- `name` — ім’я subnet group, формується на основі назви БД.
+- `aws_security_group.rds` — створює **Security Group**, яка дозволяє доступ до бази даних.
+- `from_port` / `to_port = 5432` — відкриває порт PostgreSQL (або інший, якщо треба).
+- `cidr_blocks = ["0.0.0.0/0"]` — тимчасово відкриває доступ з будь-якої IP-адреси (⚠️ слід обмежити у production).
+- `vpc_id = var.vpc_id` — підключає SG до потрібної VPC.
+
+**Файл: aurora.tf**  
+Файл Terraform-сценарію. Тут описана Amazon Aurora, яку ми підіймаємо в AWS.
+
+- `aws_rds_cluster "aurora"`  
+  Створює сам кластер Amazon Aurora, у якому зберігається основна логіка та конфігурація БД. Це «серце» Aurora, яке обʼєднує всі інстанси (writer / reader).
+
+  - `count = var.use_aurora ? 1 : 0` — дозволяє створювати кластер, тільки якщо увімкнено `use_aurora = true`.
+  - `engine` / `engine_version` — тип (`aurora-postgresql`) і версія БД, наприклад `15.3`.
+  - `master_username` / `master_password` — облікові дані адміністратора бази.
+  - `db_subnet_group_name` — група сабнетів, у яких буде розміщено всі інстанси.
+  - `vpc_security_group_ids` — дозволи доступу (SG).
+  - `backup_retention_period` — кількість днів, протягом яких Aurora буде зберігати автоматичні бекапи.
+  - `skip_final_snapshot = false` — зберігаємо snapshot перед видаленням.
+  - `final_snapshot_identifier` — ім’я snapshot’а, який буде створено перед видаленням кластера.
+  - `db_cluster_parameter_group_name` — посилання на параметр-групу Aurora.
+
+- `aws_rds_cluster_instance "aurora_writer"`  
+   Створює первинний інстанс Aurora, який виконує роль writer — він приймає всі записи в БД.
+
+  - `identifier` — унікальна назва інстансу (наприклад, `myapp-db-writer`).
+  - `cluster_identifier` — привʼязка до кластера, створеного вище.
+  - `instance_class` — тип EC2-ресурсу, наприклад `db.r6g.large`, `db.t3.medium`.
+  - `engine` — повинен збігатися з кластером (`aurora-postgresql`).
+  - `publicly_accessible` — визначає, чи інстанс доступний з інтернету.
+
+- `aws_rds_cluster_instance "aurora_readers"`  
+   Додає репліки Aurora, які автоматично синхронізуються із writer-інстансом і приймають лише read-запити.
+
+  - `count = var.aurora_replica_count` — кількість read-only реплік задається окремо (наприклад, 1-3).
+  - `identifier` — формує унікальну назву для кожної репліки (`myapp-db-reader-0`, `1`…).
+  - `cluster_identifier`, `instance_class`, `engine`, `publicly_accessible` — ті самі принципи, що і для writer.
+
+- `aws_rds_cluster_parameter_group "aurora"`  
+   Налаштовує параметри PostgreSQL, які будуть застосовані до всього кластера Aurora.
+
+  - `family` — тип параметр-групи (наприклад, `aurora-postgresql15`), повинен відповідати `engine_version`.
+  - `dynamic "parameter"` — дозволяє передавати будь-які параметри як `map`, наприклад:
+    ```hcl
+    parameters = {
+      max_connections = "200"
+      log_min_duration_statement = "500"
+    }
+    ```
+  - `apply_method = "pending-reboot"` — параметри будуть застосовані після перезапуску кластера.
+
+</details>
+
+<details>
+<summary>Скрин створеної бази даних</summary>
+
+![alt text](.mdmedia/10_rds.png)
+
+</details>
+
 ## Видалення інфраструктури
 
-```bash
+```sh
 # Видалення інфраструктури
-terraform destroy
+terraform destroy -auto-approve
 ```
